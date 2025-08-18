@@ -1,0 +1,40 @@
+version: 2
+
+snapshots:
+  - name: sat_customer_attributes
+    description: "SCD2 snapshot of customer descriptive attributes (satellite on HUB_CUSTOMER)."
+    columns:
+      - name: CUSTOMER_HK
+        tests: [not_null]
+      - name: DBT_VALID_FROM
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_less_than_B:
+              column_A: DBT_VALID_FROM
+              column_B: "coalesce(DBT_VALID_TO, '2999-12-31'::timestamp)"
+    tests:
+      # one version per (hk, valid_from)
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          column_list: ["CUSTOMER_HK", "DBT_VALID_FROM"]
+      # per customer_hk, there is 0 or 1 open-ended row
+      - dbt_expectations.expect_grouped_row_condition_to_hold:
+          group_by: ["CUSTOMER_HK"]
+          condition: "sum(case when DBT_VALID_TO is null then 1 else 0 end) in (0,1)"
+
+  - name: sat_link_ops_lineattr
+    description: "SCD2 snapshot of line attributes (satellite on LINK_ORDER_PART_SUPPLIER)."
+    columns:
+      - name: LINK_HK
+        tests: [not_null]
+      - name: DBT_VALID_FROM
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_less_than_B:
+              column_A: DBT_VALID_FROM
+              column_B: "coalesce(DBT_VALID_TO, '2999-12-31'::timestamp)"
+    tests:
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          column_list: ["LINK_HK", "DBT_VALID_FROM"]
+      - dbt_expectations.expect_grouped_row_condition_to_hold:
+          group_by: ["LINK_HK"]
+          condition: "sum(case when DBT_VALID_TO is null then 1 else 0 end) in (0,1)"
