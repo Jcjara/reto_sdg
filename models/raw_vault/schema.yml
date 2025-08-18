@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: hub_customer
+    description: "DV2 Hub for Customer (BK=C_CUSTKEY)."
+    columns:
+      - name: customer_hk
+        tests: [not_null, unique]
+      - name: customer_bk
+        tests: [not_null]
+
+  - name: hub_order
+    description: "DV2 Hub for Order (BK=O_ORDERKEY)."
+    columns:
+      - name: order_hk
+        tests: [not_null, unique]
+      - name: order_bk
+        tests: [not_null]
+
+  - name: hub_part
+    description: "DV2 Hub for Part (BK=P_PARTKEY)."
+    columns:
+      - name: part_hk
+        tests: [not_null, unique]
+      - name: part_bk
+        tests: [not_null]
+
+  - name: hub_supplier
+    description: "DV2 Hub for Supplier (BK=S_SUPPKEY)."
+    columns:
+      - name: supplier_hk
+        tests: [not_null, unique]
+      - name: supplier_bk
+        tests: [not_null]
