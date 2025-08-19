@@ -1,0 +1,168 @@
+version: 2
+
+models:
+  - name: stg_tpch__customer
+    description: "Staging model for TPC-H CUSTOMER. One row per customer."
+    columns:
+      - name: customer_id
+        description: "Business key from TPCH (C_CUSTKEY)."
+        tests: [not_null, unique]
+      - name: customer_name
+        description: "Customer name (C_NAME)."
+      - name: address
+        description: "Customer address (C_ADDRESS)."
+      - name: nation_id
+        description: "Foreign key to NATION (C_NATIONKEY)."
+        tests: [not_null]
+      - name: phone
+        description: "Customer phone (C_PHONE)."
+      - name: account_balance
+        description: "Account balance (C_ACCTBAL)."
+      - name: market_segment
+        description: "Market segment (C_MKTSEGMENT)."
+      - name: comment
+        description: "Free text comment."
+
+  - name: stg_tpch__orders
+    description: "Staging model for TPC-H ORDERS. One row per order."
+    columns:
+      - name: order_id
+        description: "Business key from TPCH (O_ORDERKEY)."
+        tests: [not_null, unique]
+      - name: customer_id
+        description: "FK to customer (O_CUSTKEY)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_tpch__customer')
+              field: customer_id
+      - name: order_status
+        description: "Order status (O_ORDERSTATUS)."
+        tests:
+          - accepted_values:
+              values: ['F','O','P','f','o','p']   # just in case casing varies
+      - name: total_price
+        description: "Total price (O_TOTALPRICE)."
+      - name: order_date
+        description: "Order date (O_ORDERDATE)."
+        tests: [not_null]
+      - name: order_priority
+        description: "Order priority (O_ORDERPRIORITY)."
+      - name: clerk
+        description: "Clerk handling the order (O_CLERK)."
+      - name: ship_priority
+        description: "Ship priority (O_SHIPPRIORITY)."
+      - name: comment
+        description: "Free text comment."
+
+  - name: stg_tpch__lineitem
+    description: "Staging model for TPC-H LINEITEM. One row per order line."
+    columns:
+      - name: lineitem_id
+        description: "Synthetic key: order_id || '-' || line_number."
+        tests: [not_null, unique]
+      - name: order_id
+        description: "FK to order (L_ORDERKEY)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_tpch__orders')
+              field: order_id
+      - name: part_id
+        description: "FK to part (L_PARTKEY)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_tpch__part')
+              field: part_id
+      - name: supplier_id
+        description: "FK to supplier (L_SUPPKEY)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_tpch__supplier')
+              field: supplier_id
+      - name: line_number
+        description: "Line number within the order (L_LINENUMBER)."
+      - name: quantity
+        description: "Ordered quantity (L_QUANTITY)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "(quantity is null) OR (quantity >= 0)"
+      - name: extended_price
+        description: "Extended price (L_EXTENDEDPRICE)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "(extended_price is null) OR (extended_price >= 0)"
+      - name: discount
+        description: "Discount as a fraction (L_DISCOUNT)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "(discount is null) OR (discount >= 0 AND discount < 1)"
+      - name: tax
+        description: "Tax as a fraction (L_TAX)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "(tax is null) OR (tax >= 0 AND tax < 1)"
+      - name: return_flag
+        description: "Return flag (L_RETURNFLAG)."
+      - name: line_status
+        description: "Line status (L_LINESTATUS)."
+      - name: ship_date
+        description: "Ship date (L_SHIPDATE)."
+      - name: commit_date
+        description: "Commit date (L_COMMITDATE)."
+      - name: receipt_date
+        description: "Receipt date (L_RECEIPTDATE)."
+      - name: ship_instruct
+        description: "Shipping instructions (L_SHIPINSTRUCT)."
+      - name: ship_mode
+        description: "Shipping mode (L_SHIPMODE)."
+      - name: comment
+        description: "Free text comment."
+
+  - name: stg_tpch__part
+    description: "Staging model for TPC-H PART. One row per part."
+    columns:
+      - name: part_id
+        description: "Business key from TPCH (P_PARTKEY)."
+        tests: [not_null, unique]
+      - name: part_name
+        description: "Part name (P_NAME)."
+      - name: manufacturer
+        description: "Manufacturer (P_MFGR)."
+      - name: brand
+        description: "Brand (P_BRAND)."
+      - name: part_type
+        description: "Type/category (P_TYPE)."
+      - name: size
+        description: "Size (P_SIZE)."
+      - name: container
+        description: "Container type (P_CONTAINER)."
+      - name: retail_price
+        description: "Retail price (P_RETAILPRICE)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "(retail_price is null) OR (retail_price >= 0)"
+      - name: comment
+        description: "Free text comment."
+
+  - name: stg_tpch__supplier
+    description: "Staging model for TPC-H SUPPLIER. One row per supplier."
+    columns:
+      - name: supplier_id
+        description: "Business key from TPCH (S_SUPPKEY)."
+        tests: [not_null, unique]
+      - name: supplier_name
+        description: "Supplier name (S_NAME)."
+      - name: address
+        description: "Supplier address (S_ADDRESS)."
+      - name: nation_id
+        description: "Foreign key to NATION (S_NATIONKEY)."
+        tests: [not_null]
+      - name: phone
+        description: "Supplier phone (S_PHONE)."
+      - name: account_balance
+        description: "Account balance (S_ACCTBAL). Can be negative in TPCH."
+      - name: comment
+        description: "Free text comment."
