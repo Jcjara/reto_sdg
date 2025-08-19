@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: vw_sales_flat
+    description: "Flattened reporting view (fact_sales joined to dim_customer & dim_product) for Tableau."
+    columns:
+      - name: LINE_SK
+        tests: [not_null, unique]
+
+      - name: CUSTOMER_SK
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_sk
+
+      - name: PRODUCT_SK
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_sk
+
+      - name: ORDER_DATE
+        tests: [not_null]
+
+      - name: NET_SALES
+        tests: [not_null]
