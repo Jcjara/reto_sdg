@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: bv_lineitem_enriched
+    description: >
+      Business Vault enrichment of lineitem data.
+      Combines line hub/link information with orders and customers,
+      and derives measures like gross_sales, discount_amount, tax_amount, net_sales.
+    columns:
+      - name: LINK_HK
+        description: "Hash key of the order-part-supplier-line (line grain)."
+        tests: [not_null]
+      - name: CUSTOMER_HK
+        description: "Hash key of the customer hub."
+        tests: [not_null]
+      - name: ORDER_HK
+        description: "Hash key of the order hub."
+        tests: [not_null]
+      - name: PART_HK
+        description: "Hash key of the product hub."
+        tests: [not_null]
+      - name: SUPPLIER_HK
+        description: "Hash key of the supplier hub."
+      - name: NET_SALES
+        description: "Final computed net sales amount."
+        tests:
+          - not_null

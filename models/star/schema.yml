@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: "Current customer dimension from SCD2 customer satellite."
+    columns:
+      - name: CUSTOMER_SK
+        tests: [not_null, unique]
+      - name: CUSTOMER_BK
+        tests: [not_null]
+
+  - name: dim_product
+    description: "Type-0 product dimension from PART."
+    columns:
+      - name: PRODUCT_SK
+        tests: [not_null, unique]
+      - name: PRODUCT_BK
+        tests: [not_null]
+
+  - name: fact_sales
+    description: "Sales fact at order-line grain; joins to dim_customer and dim_product via HK-based SKs."
+    columns:
+      - name: CUSTOMER_SK
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_sk
+      - name: PRODUCT_SK
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_sk
+      - name: LINK_HK
+        tests: [not_null, unique]

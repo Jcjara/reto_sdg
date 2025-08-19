@@ -1,0 +1,61 @@
+[sqlfluff]
+# Core setup
+templater = dbt
+dialect = snowflake
+max_line_length = 120
+
+# Some dbt/Snowflake-friendly relaxations (tweak later if you like)
+# L031: avoid too-strict rules around SELECT wildcards / references in dbt
+# L034: references to columns not in select list (often noisy with Jinja)
+# L028/L029: line-length/indent edge cases with Jinja blocks
+exclude_rules = L031,L034,L028,L029
+
+# Where to find your dbt project
+[sqlfluff:templater:dbt]
+project_dir = .
+profiles_dir = .
+
+# ===== Style rules =====
+# Indentation
+[sqlfluff:rules:indentation]
+indent_unit = space
+indent_width = 4
+
+# Keyword capitalisation: SELECT, FROM, WHERE, etc.
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+# Identifier casing: table/column names -> snake_case lower
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+# If you want to ignore specific words (e.g. your hash macros as identifiers), list them:
+ignore_words = hk256,hd256
+
+# Function names (UPPERCASE like Snowflake docs)
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = upper
+
+# Constraint names etc. (keep lower/neutral)
+[sqlfluff:rules:capitalisation.constraints]
+capitalisation_policy = lower
+
+# Commas: prefer trailing
+[sqlfluff:rules:layout.commas]
+comma_style = trailing
+
+# Whitespace around commas
+[sqlfluff:rules:whitespace.commas]
+line_position = trailing
+
+# Consistent spacing around operators
+[sqlfluff:rules:whitespace.around_operators]
+single_space = true
+
+# Long lines: allow Jinja lines to exceed limit
+[sqlfluff:rules:layout.long_lines]
+ignore_comment_lines = true
+allow_comment_lines = true
+
+# Require aliases for tables (nice for readability)
+[sqlfluff:rules:references.aliasing]
+aliasing = explicit
