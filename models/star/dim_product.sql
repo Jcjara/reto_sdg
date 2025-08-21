@@ -1,13 +1,13 @@
 {{ config(schema='star', materialized='table') }}
 
-select
-  {{ hk256(['part_id']) }} as product_sk,    -- surrogate = part HK
-  part_id                  as product_bk,
-  part_name,
-  manufacturer,
-  brand,
-  part_type,
-  size,
-  container,
-  retail_price
-from {{ ref('stg_tpch__part') }}
+SELECT
+    {{ hk256(['p.part_id']) }} AS product_sk,  -- HK-as-SK
+    p.part_id                  AS product_bk,
+    p.part_name,
+    p.manufacturer,
+    p.brand,
+    p.part_type,
+    p.size,
+    p.container,
+    p.retail_price
+FROM {{ ref('stg_tpch__part') }} p

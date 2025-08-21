@@ -1,18 +1,30 @@
 {{ config(
     schema='raw_vault',
     materialized='incremental',
-    unique_key='customer_hk'
+    unique_key='customer_hk',
+    on_schema_change='sync_all_columns'
 ) }}
 
-with s as (
-  select distinct
-    customer_id
-  from {{ ref('stg_tpch__customer') }}
+WITH base AS (
+    SELECT
+        c.customer_id AS customer_bk
+    FROM {{ ref('stg_tpch__customer') }} c
+),
+hkeys AS (
+    SELECT
+        customer_bk,
+        {{ hk256(['customer_bk']) }} AS customer_hk,
+        CURRENT_TIMESTAMP()          AS load_dt,
+        'stg_tpch__customer'         AS record_src
+    FROM base
 )
 
-select
-  {{ hk256(['customer_id']) }} as customer_hk,
-  customer_id                  as customer_bk,
-  current_timestamp()          as load_dt,
-  'TPCH_SF1'                   as record_src
-from s
+SELECT
+    customer_bk,
+    customer_hk,
+    load_dt,
+    record_src
+FROM hkeys
+{% if is_incremental() %}
+WHERE customer_hk NOT IN (SELECT customer_hk FROM {{ this }})
+{% endif %}
