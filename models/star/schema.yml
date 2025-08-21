@@ -2,35 +2,70 @@ version: 2
 
 models:
   - name: dim_customer
-    description: "Current customer dimension from SCD2 customer satellite."
+    description: "Customer dimension from current customer satellite + geography mapping."
     columns:
       - name: CUSTOMER_SK
         tests: [not_null, unique]
-      - name: CUSTOMER_BK
-        tests: [not_null]
+      - name: GEOGRAPHY_SK
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_geography')
+                field: geography_sk
 
   - name: dim_product
-    description: "Type-0 product dimension from PART."
+    description: "Product dimension from TPCH PART."
     columns:
       - name: PRODUCT_SK
         tests: [not_null, unique]
-      - name: PRODUCT_BK
+
+  - name: dim_supplier
+    description: "Supplier dimension from TPCH SUPPLIER."
+    columns:
+      - name: SUPPLIER_SK
+        tests: [not_null, unique]
+
+  - name: dim_geography
+    description: "Geography dimension at nation grain with region."
+    columns:
+      - name: GEOGRAPHY_SK
+        tests: [not_null, unique]
+      - name: NATION_BK
         tests: [not_null]
 
   - name: fact_sales
-    description: "Sales fact at order-line grain; joins to dim_customer and dim_product via HK-based SKs."
+    description: "Order-line grain fact built from Business Vault enrichment."
     columns:
       - name: CUSTOMER_SK
         tests:
           - not_null
           - relationships:
-              to: ref('dim_customer')
-              field: customer_sk
+              arguments:
+                to: ref('dim_customer')
+                field: customer_sk
       - name: PRODUCT_SK
         tests:
           - not_null
           - relationships:
-              to: ref('dim_product')
-              field: product_sk
-      - name: LINK_HK
+              arguments:
+                to: ref('dim_product')
+                field: product_sk
+      - name: SUPPLIER_SK
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_supplier')
+                field: supplier_sk
+      - name: GEOGRAPHY_SK
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_geography')
+                field: geography_sk
+      - name: LINE_SK
         tests: [not_null, unique]
+      - name: ORDER_DATE
+        tests: [not_null]
+      - name: NET_SALES
+        tests: [not_null]

@@ -1,18 +1,30 @@
 {{ config(
     schema='raw_vault',
     materialized='incremental',
-    unique_key='part_hk'
+    unique_key='part_hk',
+    on_schema_change='sync_all_columns'
 ) }}
 
-with s as (
-  select distinct
-    part_id
-  from {{ ref('stg_tpch__part') }}
+WITH base AS (
+    SELECT
+        p.part_id AS part_bk
+    FROM {{ ref('stg_tpch__part') }} p
+),
+hkeys AS (
+    SELECT
+        part_bk,
+        {{ hk256(['part_bk']) }} AS part_hk,
+        CURRENT_TIMESTAMP()      AS load_dt,
+        'stg_tpch__part'         AS record_src
+    FROM base
 )
 
-select
-  {{ hk256(['part_id']) }} as part_hk,
-  part_id                  as part_bk,
-  current_timestamp()      as load_dt,
-  'TPCH_SF1'               as record_src
-from s
+SELECT
+    part_bk,
+    part_hk,
+    load_dt,
+    record_src
+FROM hkeys
+{% if is_incremental() %}
+WHERE part_hk NOT IN (SELECT part_hk FROM {{ this }})
+{% endif %}

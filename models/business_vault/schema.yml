@@ -1,27 +1,32 @@
 version: 2
 
 models:
-  - name: bv_lineitem_enriched
-    description: >
-      Business Vault enrichment of lineitem data.
-      Combines line hub/link information with orders and customers,
-      and derives measures like gross_sales, discount_amount, tax_amount, net_sales.
+  - name: bv_customer_geography
+    description: "Customer to geography (nation/region) enrichment at customer grain."
     columns:
-      - name: LINK_HK
-        description: "Hash key of the order-part-supplier-line (line grain)."
-        tests: [not_null]
       - name: CUSTOMER_HK
-        description: "Hash key of the customer hub."
+        tests: [not_null, unique]
+      - name: CUSTOMER_ID
         tests: [not_null]
-      - name: ORDER_HK
-        description: "Hash key of the order hub."
+      - name: NATION_ID
+      - name: NATION_NAME
+      - name: REGION_ID
+      - name: REGION_NAME
+
+  - name: bv_lineitem_enriched
+    description: "Order-line enrichment combining lineitem, orders (dates), customer sat (segment), part (brand/type), and derived measures."
+    columns:
+      - name: CUSTOMER_HK
         tests: [not_null]
       - name: PART_HK
-        description: "Hash key of the product hub."
         tests: [not_null]
       - name: SUPPLIER_HK
-        description: "Hash key of the supplier hub."
+        tests: [not_null]
+      - name: ORDER_HK
+        tests: [not_null]
+      - name: LINK_HK
+        tests: [not_null, unique]
+      - name: ORDER_DATE
+        tests: [not_null]
       - name: NET_SALES
-        description: "Final computed net sales amount."
-        tests:
-          - not_null
+        tests: [not_null]

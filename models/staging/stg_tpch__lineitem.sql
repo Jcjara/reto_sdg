@@ -1,34 +1,20 @@
-{{ config(
-    schema='staging',
-    materialized='view'
-) }}
+{{ config(schema='staging', materialized='view') }}
 
-with source as (
-
-    select
-        l_orderkey       :: varchar  as order_id,
-        l_partkey        :: varchar  as part_id,
-        l_suppkey        :: varchar  as supplier_id,
-        l_linenumber     :: varchar  as line_number,
-
-        /* synthetic id at line grain for tests/joins */
-        (l_orderkey::varchar || '-' || l_linenumber::varchar) as lineitem_id,
-
-        l_quantity       :: number(12,2)  as quantity,
-        l_extendedprice  :: number(18,2)  as extended_price,
-        l_discount       :: number(5,2)   as discount,
-        l_tax            :: number(5,2)   as tax,
-
-        l_returnflag                  as return_flag,
-        l_linestatus                  as line_status,
-        l_shipdate      :: date       as ship_date,
-        l_commitdate    :: date       as commit_date,
-        l_receiptdate   :: date       as receipt_date,
-        l_shipinstruct               as ship_instruct,
-        l_shipmode                   as ship_mode,
-        l_comment                    as comment
-    from SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM
-
-)
-
-select * from source
+SELECT
+    l.l_orderkey     AS order_id,
+    l.l_partkey      AS part_id,
+    l.l_suppkey      AS supplier_id,
+    l.l_linenumber   AS line_number,
+    l.l_quantity     AS quantity,
+    l.l_extendedprice AS extended_price,
+    l.l_discount     AS discount,
+    l.l_tax          AS tax,
+    l.l_returnflag   AS return_flag,
+    l.l_linestatus   AS line_status,
+    l.l_shipdate     AS ship_date,
+    l.l_commitdate   AS commit_date,
+    l.l_receiptdate  AS receipt_date,
+    l.l_shipinstruct AS ship_instruct,
+    l.l_shipmode     AS ship_mode,
+    l.l_comment      AS comment
+FROM {{ source('tpch', 'lineitem') }} AS l
