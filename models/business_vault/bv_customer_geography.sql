@@ -1,8 +1,3 @@
-{{ config(
-    schema='business_vault',
-    materialized='view'
-) }}
-
 WITH c AS (
     SELECT
         c.customer_id,

@@ -1,5 +1,3 @@
-{{ config(schema='staging', materialized='view') }}
-
 SELECT
     n.n_nationkey    AS nation_id,
     n.n_name         AS nation_name,

@@ -1,7 +1,6 @@
 {% snapshot sat_link_ops_lineattr %}
 {{
   config(
-    target_schema='raw_vault',
     unique_key='link_hk',
     strategy='check',
     check_cols=[
@@ -14,8 +13,7 @@
 }}
 
 SELECT
-  -- Link grain: order-part-supplier + line_number
-  {{ hk256(['order_id','part_id','supplier_id','line_number']) }} AS link_hk,
+  {{ hk256(['l.order_id','l.part_id','l.supplier_id','l.line_number']) }} AS link_hk,
   l.quantity,
   l.extended_price,
   l.discount,
@@ -28,6 +26,7 @@ SELECT
   l.ship_instruct,
   l.ship_mode,
   l.comment,
-  'stg_tpch__lineitem' AS record_src
+  {{ var('source_system') }} AS record_src
 FROM {{ ref('stg_tpch__lineitem') }} l
+
 {% endsnapshot %}

@@ -1,5 +1,3 @@
-{{ config(schema='staging', materialized='view') }}
-
 SELECT
     l.l_orderkey     AS order_id,
     l.l_partkey      AS part_id,

@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='link_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -15,11 +13,11 @@ keys AS (
     SELECT
         nation_bk,
         region_bk,
-        {{ hk256(['nation_bk']) }} AS nation_hk,
-        {{ hk256(['region_bk']) }} AS region_hk,
+        {{ hk256(['nation_bk']) }}             AS nation_hk,
+        {{ hk256(['region_bk']) }}             AS region_hk,
         {{ hk256(['nation_bk','region_bk']) }} AS link_hk,
-        CURRENT_TIMESTAMP() AS load_dt,
-        'stg_tpch__nation'  AS record_src
+        CURRENT_TIMESTAMP()                    AS load_dt,
+        {{ record_src_const() }}               AS record_src
     FROM base
 )
 

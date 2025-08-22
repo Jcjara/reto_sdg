@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='link_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -15,11 +13,11 @@ keys AS (
     SELECT
         part_bk,
         supplier_bk,
-        {{ hk256(['part_bk']) }}     AS part_hk,
-        {{ hk256(['supplier_bk']) }} AS supplier_hk,
+        {{ hk256(['part_bk']) }}               AS part_hk,
+        {{ hk256(['supplier_bk']) }}           AS supplier_hk,
         {{ hk256(['part_bk','supplier_bk']) }} AS link_hk,
-        CURRENT_TIMESTAMP() AS load_dt,
-        'stg_tpch__partsupp' AS record_src
+        CURRENT_TIMESTAMP()                    AS load_dt,
+        {{ record_src_const() }}               AS record_src
     FROM base
 )
 

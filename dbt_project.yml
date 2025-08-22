@@ -2,18 +2,32 @@ name: reto_project
 version: 1.0
 config-version: 2
 
-# Debe coincidir con el nombre del perfil/conexión en dbt Cloud
 profile: reto_db
 
-# (Opcional) rutas; si no las pones, dbt usa defaults
 model-paths: ["models"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 seed-paths: ["seeds"]
 test-paths: ["tests"]
 
+# Optional constants you can reference in macros (e.g., record_src_const())
+vars:
+  source_system: TPCH
+
+snapshots:
+  reto_project:
+    +target_schema: raw_vault
+    +persist_docs:
+      relation: true
+      columns: true
+
 models:
   reto_project:
+    # Good global defaults
+    +on_schema_change: sync_all_columns
+    +persist_docs:
+      relation: true
+      columns: true
 
     # STAGING → RETO_DB.STAGING
     staging:
@@ -24,6 +38,7 @@ models:
     raw_vault:
       +schema: raw_vault
       +materialized: incremental
+      # Satellite *views* will override materialization in their files only if needed
 
     # BUSINESS VAULT → RETO_DB.BUSINESS_VAULT
     business_vault:
@@ -34,3 +49,5 @@ models:
     star:
       +schema: star
       +materialized: table
+      reporting:
+        +materialized: view   # everything in models/star/reporting/ becomes a view

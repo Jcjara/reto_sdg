@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='order_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -13,9 +11,9 @@ WITH base AS (
 hkeys AS (
     SELECT
         order_bk,
-        {{ hk256(['order_bk']) }} AS order_hk,
-        CURRENT_TIMESTAMP()       AS load_dt,
-        'stg_tpch__orders'        AS record_src
+        {{ hk256(['order_bk']) }}  AS order_hk,
+        CURRENT_TIMESTAMP()        AS load_dt,
+        {{ record_src_const() }}   AS record_src
     FROM base
 )
 

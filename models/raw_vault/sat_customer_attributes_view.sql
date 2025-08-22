@@ -1,5 +1,3 @@
-{{ config(schema='raw_vault', materialized='view') }}
-
 SELECT
   customer_hk,
   customer_name,

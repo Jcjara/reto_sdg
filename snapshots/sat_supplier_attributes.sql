@@ -1,7 +1,6 @@
 {% snapshot sat_supplier_attributes %}
 {{
     config(
-        target_schema='raw_vault',
         unique_key='supplier_hk',
         strategy='check',
         check_cols=['name', 'address', 'nation_id', 'phone', 'account_balance'],
@@ -16,7 +15,7 @@ SELECT
     s.nation_id,
     s.phone,
     s.account_balance,
-    'stg_tpch__supplier' AS record_src
+    {{ var('source_system') }}     AS record_src
 FROM {{ ref('stg_tpch__supplier') }} s
 
 {% endsnapshot %}

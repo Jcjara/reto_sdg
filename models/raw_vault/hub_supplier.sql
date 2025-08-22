@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='supplier_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -15,7 +13,7 @@ hkeys AS (
         supplier_bk,
         {{ hk256(['supplier_bk']) }} AS supplier_hk,
         CURRENT_TIMESTAMP()          AS load_dt,
-        'stg_tpch__supplier'         AS record_src
+        {{ record_src_const() }}     AS record_src
     FROM base
 )
 
