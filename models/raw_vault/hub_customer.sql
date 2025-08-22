@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='customer_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -15,7 +13,7 @@ hkeys AS (
         customer_bk,
         {{ hk256(['customer_bk']) }} AS customer_hk,
         CURRENT_TIMESTAMP()          AS load_dt,
-        'stg_tpch__customer'         AS record_src
+        {{ record_src_const() }}     AS record_src
     FROM base
 )
 

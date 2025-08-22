@@ -1,5 +1,3 @@
-{{ config(schema='staging', materialized='view') }}
-
 SELECT
     r.r_regionkey    AS region_id,
     r.r_name         AS region_name,

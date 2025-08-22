@@ -1,5 +1,3 @@
-{{ config(schema='staging', materialized='view') }}
-
 SELECT
     s.s_suppkey      AS supplier_id,
     s.s_name         AS name,

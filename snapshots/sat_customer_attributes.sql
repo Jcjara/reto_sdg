@@ -1,7 +1,6 @@
 {% snapshot sat_customer_attributes %}
 {{
   config(
-    target_schema='raw_vault',
     unique_key='customer_hk',
     strategy='check',
     check_cols=['customer_name','nation_id','account_balance','market_segment','comment'],
@@ -16,6 +15,6 @@ SELECT
   c.account_balance,
   c.market_segment,
   c.comment,
-  'stg_tpch__customer' AS record_src
+  {{ var('source_system') }}   AS record_src
 FROM {{ ref('stg_tpch__customer') }} c
 {% endsnapshot %}

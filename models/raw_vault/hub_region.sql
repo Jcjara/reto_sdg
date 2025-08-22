@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='region_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -15,7 +13,7 @@ hkeys AS (
         region_bk,
         {{ hk256(['region_bk']) }} AS region_hk,
         CURRENT_TIMESTAMP()        AS load_dt,
-        'stg_tpch__region'         AS record_src
+        {{ record_src_const() }}   AS record_src
     FROM base
 )
 

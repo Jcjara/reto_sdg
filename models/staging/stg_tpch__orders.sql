@@ -1,5 +1,3 @@
-{{ config(schema='staging', materialized='view') }}
-
 SELECT
     o.o_orderkey     AS order_id,
     o.o_custkey      AS customer_id,

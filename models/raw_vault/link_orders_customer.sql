@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='link_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -15,11 +13,11 @@ keys AS (
     SELECT
         order_bk,
         customer_bk,
-        {{ hk256(['order_bk']) }}    AS order_hk,
-        {{ hk256(['customer_bk']) }} AS customer_hk,
+        {{ hk256(['order_bk']) }}               AS order_hk,
+        {{ hk256(['customer_bk']) }}            AS customer_hk,
         {{ hk256(['order_bk','customer_bk']) }} AS link_hk,
-        CURRENT_TIMESTAMP() AS load_dt,
-        'stg_tpch__orders'  AS record_src
+        CURRENT_TIMESTAMP()                     AS load_dt,
+        {{ record_src_const() }}                AS record_src
     FROM base
 )
 

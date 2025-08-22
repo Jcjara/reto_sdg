@@ -1,5 +1,3 @@
-{{ config(schema='raw_vault', materialized='view') }}
-
 SELECT
     link_hk,
     avail_qty,

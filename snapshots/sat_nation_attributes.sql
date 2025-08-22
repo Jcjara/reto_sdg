@@ -1,21 +1,18 @@
--- snapshots/sat_nation_attributes.sql
-
 {% snapshot sat_nation_attributes %}
 {{
     config(
-        target_schema='RAW_VAULT',
-        unique_key='NATION_HK',
+        unique_key='nation_hk',
         strategy='check',
-        check_cols=['NATION_NAME', 'REGION_ID'],
+        check_cols=['nation_name', 'region_id'],
         invalidate_hard_deletes=True
     )
 }}
 
 SELECT
-    {{ hk256(['N.NATION_ID']) }}   AS NATION_HK,
-    N.NATION_NAME,
-    N.REGION_ID,
-    'STG_TPCH__NATION'             AS RECORD_SRC
-FROM {{ ref('stg_tpch__nation') }} N
+    {{ hk256(['n.nation_id']) }} AS nation_hk,
+    n.nation_name,
+    n.region_id,
+    {{ var('source_system') }}   AS record_src
+FROM {{ ref('stg_tpch__nation') }} n
 
 {% endsnapshot %}

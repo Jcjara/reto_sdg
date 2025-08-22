@@ -1,6 +1,4 @@
 {{ config(
-    schema='raw_vault',
-    materialized='incremental',
     unique_key='part_hk',
     on_schema_change='sync_all_columns'
 ) }}
@@ -13,9 +11,9 @@ WITH base AS (
 hkeys AS (
     SELECT
         part_bk,
-        {{ hk256(['part_bk']) }} AS part_hk,
-        CURRENT_TIMESTAMP()      AS load_dt,
-        'stg_tpch__part'         AS record_src
+        {{ hk256(['part_bk']) }}   AS part_hk,
+        CURRENT_TIMESTAMP()        AS load_dt,
+        {{ record_src_const() }}   AS record_src
     FROM base
 )
 
