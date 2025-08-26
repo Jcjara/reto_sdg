@@ -4,14 +4,18 @@ exposures:
   - name: tableau_sales_dashboard
     type: dashboard
     maturity: medium
+    url: "https://prod-uk-a.online.tableau.com/#/site/jcjaraperez-00ed4e52b2/workbooks/2296103/views"
+    description: "Sales dashboard built on the reporting view vw_sales_flat (Snowflake → dbt → Tableau)."
     owner:
-      name: SDG Demo
+      name: Juan Carlos
       email: jcjaraperez@gmail.com
-    url: "https://tableau.cloud/your/workbook/url"  # or leave blank for demo
-    description: "Sales dashboard consuming the star schema."
+
     depends_on:
-      - ref('fact_sales')
-      - ref('dim_customer')
-      - ref('dim_part')
-      - ref('dim_supplier')
-    tags: ['bi', 'tableau', 'sales']
+      - ref('vw_sales_flat')   # reporting layer view powering the dashboard
+
+    tags: ["tableau", "reporting", "sales"]
+
+    meta:
+      tool: "tableau_cloud"
+      project: "SDG Demo"
+      workbook: "Sales Dashboard"
