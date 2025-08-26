@@ -38,7 +38,6 @@ models:
     raw_vault:
       +schema: raw_vault
       +materialized: incremental
-      # Satellite *views* will override materialization in their files only if needed
 
     # BUSINESS VAULT → RETO_DB.BUSINESS_VAULT
     business_vault:
@@ -51,3 +50,7 @@ models:
       +materialized: table
       reporting:
         +materialized: view   # everything in models/star/reporting/ becomes a view
+
+    reporting:
+      +schema: reporting
+      +materialized: view

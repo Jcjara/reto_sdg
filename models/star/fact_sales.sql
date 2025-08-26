@@ -1,61 +1,26 @@
-{{ config(schema='star', materialized='table') }}
-
-WITH bv AS (
-    SELECT
-        customer_hk,
-        part_hk,
-        supplier_hk,
-        order_hk,
-        link_hk,
-        order_date,
-        ship_date,
-        receipt_date,
-        ship_mode,
-        return_flag,
-        line_status,
-        brand,
-        manufacturer,
-        part_type,
-        market_segment,
-        quantity,
-        gross_sales,
-        discount_amount,
-        tax_amount,
-        net_sales
-    FROM {{ ref('bv_lineitem_enriched') }}
-),
-cust_geo AS (
-    SELECT
-        bcg.customer_hk,
-        bcg.nation_id
-    FROM {{ ref('bv_customer_geography') }} bcg
-)
-
 SELECT
-    -- Surrogate keys (HK-as-SK)
-    b.customer_hk                                  AS customer_sk,
-    b.part_hk                                      AS product_sk,
-    b.supplier_hk                                  AS supplier_sk,
-    {{ hk256(['cg.nation_id']) }}                  AS geography_sk,
-
-    -- Degenerate keys / naturals useful for drill-through
-    b.order_hk,
-    b.link_hk                                      AS line_sk,
-
-    -- Dates / flags / modes
-    b.order_date,
-    b.ship_date,
-    b.receipt_date,
-    b.ship_mode,
-    b.return_flag,
-    b.line_status,
-
-    -- Measures
-    b.quantity,
-    b.gross_sales,
-    b.discount_amount,
-    b.tax_amount,
-    b.net_sales
-FROM bv b
-LEFT JOIN cust_geo cg
-  ON cg.customer_hk = b.customer_hk
+    l.link_hk          AS sales_sk,
+    o.order_hk,
+    c.customer_hk,
+    p.part_hk,
+    s.supplier_hk,
+    l.extended_price,
+    l.discount,
+    l.tax,
+    l.quantity,
+    l.return_flag,
+    l.line_status,
+    l.ship_date,
+    l.commit_date,
+    l.receipt_date,
+    l.ship_mode,
+    o.order_date
+FROM {{ ref('bv_lineitem') }} l
+LEFT JOIN {{ ref('bv_order') }} o
+  ON l.order_hk = o.order_hk
+LEFT JOIN {{ ref('bv_customer') }} c
+  ON o.customer_hk = c.customer_hk
+LEFT JOIN {{ ref('bv_part') }} p
+  ON l.part_hk = p.part_hk
+LEFT JOIN {{ ref('bv_supplier') }} s
+  ON l.supplier_hk = s.supplier_hk

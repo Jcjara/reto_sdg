@@ -1,0 +1,106 @@
+version: 2
+
+models:
+  - name: vw_sales_flat
+    description: "Presentation view over the star schema with standardized sales metrics ready for BI."
+    columns:
+      # Keys / references
+      - name: sales_sk
+        description: "Line-level surrogate key from FACT_SALES (link HK)."
+        tests: [not_null]
+      - name: order_hk
+        description: "Order hash key (FACT_SALES)."
+      - name: customer_hk
+        description: "Customer hash key (joins to DIM_CUSTOMER.customer_sk)."
+      - name: part_hk
+        description: "Part hash key (joins to DIM_PART.part_sk)."
+      - name: supplier_hk
+        description: "Supplier hash key (joins to DIM_SUPPLIER.supplier_sk)."
+
+      # Dates / logistics
+      - name: order_date
+        description: "Order placement date (FACT_SALES)."
+      - name: ship_date
+        description: "Shipment date."
+      - name: receipt_date
+        description: "Receipt date."
+      - name: commit_date
+        description: "Commitment date."
+      - name: ship_mode
+        description: "Shipping mode."
+
+      # Measures (raw)
+      - name: quantity
+        description: "Line quantity."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "{{ column_name }} >= 0"
+      - name: extended_price
+        description: "Extended price for the line (before discount/tax)."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "{{ column_name }} >= 0"
+
+      # Rates (validate only when NOT NULL)
+      - name: discount
+        description: "Discount rate (0–1)."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+              strictly: false
+              row_condition: "discount IS NOT NULL"
+      - name: tax
+        description: "Tax rate (0–1)."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+              strictly: false
+              row_condition: "tax IS NOT NULL"
+
+      # Metrics (standardized here)
+      - name: gross_sales
+        description: "extended_price (before discounts/tax)."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "{{ column_name }} >= 0"
+      - name: net_sales_before_tax
+        description: "extended_price * (1 - COALESCE(discount,0))."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "{{ column_name }} >= 0"
+      - name: net_sales
+        description: "extended_price * (1 - COALESCE(discount,0)) * (1 + COALESCE(tax,0))."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "{{ column_name }} >= 0"
+
+      # Customer attributes
+      - name: customer_name
+        description: "Customer name (DIM_CUSTOMER)."
+      - name: market_segment
+        description: "Customer segment."
+      - name: account_balance
+        description: "Customer account balance."
+
+      # Part / product attributes
+      - name: part_name
+        description: "Part name (DIM_PART)."
+      - name: brand
+        description: "Brand (DIM_PART)."
+      - name: part_type
+        description: "Part type/category (aliased from DIM_PART.type)."
+
+      # Supplier / geography
+      - name: supplier_name
+        description: "Supplier name (DIM_SUPPLIER)."
+      - name: nation_name
+        description: "Nation name (DIM_NATION)."
+      - name: region_name
+        description: "Region name (DIM_REGION)."

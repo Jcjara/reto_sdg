@@ -1,33 +1,10 @@
-{{ config(
-    unique_key='link_hk',
-    on_schema_change='sync_all_columns'
+{{ config(unique_key='link_hk') }}
+
+{{ dv_platform.dv_link(
+    src_ref_name='stg_tpch__partsupp',
+    keys=[
+      {"cols": ["part_id"],     "hk": "part_hk"},
+      {"cols": ["supplier_id"], "hk": "supplier_hk"}
+    ],
+    link_hk_name='link_hk'
 ) }}
-
-WITH base AS (
-    SELECT
-        ps.part_id     AS part_bk,
-        ps.supplier_id AS supplier_bk
-    FROM {{ ref('stg_tpch__partsupp') }} ps
-),
-keys AS (
-    SELECT
-        part_bk,
-        supplier_bk,
-        {{ hk256(['part_bk']) }}               AS part_hk,
-        {{ hk256(['supplier_bk']) }}           AS supplier_hk,
-        {{ hk256(['part_bk','supplier_bk']) }} AS link_hk,
-        CURRENT_TIMESTAMP()                    AS load_dt,
-        {{ record_src_const() }}               AS record_src
-    FROM base
-)
-
-SELECT
-    link_hk,
-    part_hk,
-    supplier_hk,
-    load_dt,
-    record_src
-FROM keys
-{% if is_incremental() %}
-WHERE link_hk NOT IN (SELECT link_hk FROM {{ this }})
-{% endif %}

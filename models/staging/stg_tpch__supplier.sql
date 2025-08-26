@@ -1,6 +1,6 @@
 SELECT
     s.s_suppkey      AS supplier_id,
-    s.s_name         AS name,
+    s.s_name         AS supplier_name,
     s.s_address      AS address,
     s.s_nationkey    AS nation_id,
     s.s_phone        AS phone,
