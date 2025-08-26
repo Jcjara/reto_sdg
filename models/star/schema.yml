@@ -118,12 +118,3 @@ models:
         tests: [not_null]
       - name: extended_price
         tests: [not_null]
-
-  # ======================
-  # REPORTING VIEW
-  # ======================
-  - name: vw_sales_flat
-    description: "Convenience view joining fact_sales to key dims for BI."
-    columns:
-      - name: sales_sk
-        tests: [not_null]
