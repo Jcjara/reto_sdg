@@ -1,40 +1,14 @@
 {{ config(
-    unique_key='link_hk',
-    on_schema_change='sync_all_columns'
+    unique_key = 'link_hk'
 ) }}
 
-WITH base AS (
-    SELECT
-        l.order_id     AS order_bk,
-        l.part_id      AS part_bk,
-        l.supplier_id  AS supplier_bk,
-        l.line_number  AS line_bk
-    FROM {{ ref('stg_tpch__lineitem') }} l
-),
-keys AS (
-    SELECT
-        order_bk,
-        part_bk,
-        supplier_bk,
-        line_bk,
-        {{ hk256(['order_bk']) }}                                   AS order_hk,
-        {{ hk256(['part_bk']) }}                                    AS part_hk,
-        {{ hk256(['supplier_bk']) }}                                AS supplier_hk,
-        -- Include line_bk as a dependent child key in the link hash for line-level uniqueness
-        {{ hk256(['order_bk','part_bk','supplier_bk','line_bk']) }} AS link_hk,
-        CURRENT_TIMESTAMP()                                         AS load_dt,
-        {{ record_src_const() }}                                    AS record_src
-    FROM base
-)
-
-SELECT
-    link_hk,
-    order_hk,
-    part_hk,
-    supplier_hk,
-    load_dt,
-    record_src
-FROM keys
-{% if is_incremental() %}
-WHERE link_hk NOT IN (SELECT link_hk FROM {{ this }})
-{% endif %}
+{{ dv_platform.dv_link(
+    src_ref_name = 'stg_tpch__lineitem',
+    keys = [
+      {"cols": ["order_id"],    "hk": "order_hk"},
+      {"cols": ["part_id"],     "hk": "part_hk"},
+      {"cols": ["supplier_id"], "hk": "supplier_hk"},
+      {"cols": ["line_number"]}
+    ],
+    link_hk_name = 'link_hk'
+) }}

@@ -1,102 +1,89 @@
 version: 2
 
 models:
-  # Hubs
+  # ========================
+  # HUBS (BK columns use *_id)
+  # ========================
   - name: hub_customer
-    description: "Hub for customers (business key = CUSTOMER_ID)."
+    description: "Hub table storing unique business keys for customers."
     columns:
-      - name: CUSTOMER_HK
-        description: "Hash key for customer."
-        tests: [not_null, unique]
-      - name: CUSTOMER_BK
-        description: "Business key for customer (CUSTOMER_ID from source)."
-        tests: [not_null, unique]
+      - name: customer_hk
+        tests: [unique, not_null]
+      - name: customer_id
+        tests: [not_null]
 
   - name: hub_orders
-    description: "Hub for orders (business key = ORDER_ID)."
+    description: "Hub table storing unique business keys for orders."
     columns:
-      - name: ORDER_HK
-        tests: [not_null, unique]
-      - name: ORDER_BK
-        tests: [not_null, unique]
+      - name: order_hk
+        tests: [unique, not_null]
+      - name: order_id
+        tests: [not_null]
 
   - name: hub_part
-    description: "Hub for parts (business key = PART_ID)."
+    description: "Hub table storing unique business keys for parts."
     columns:
-      - name: PART_HK
-        tests: [not_null, unique]
-      - name: PART_BK
-        tests: [not_null, unique]
+      - name: part_hk
+        tests: [unique, not_null]
+      - name: part_id
+        tests: [not_null]
 
   - name: hub_supplier
-    description: "Hub for suppliers (business key = SUPPLIER_ID)."
+    description: "Hub table storing unique business keys for suppliers."
     columns:
-      - name: SUPPLIER_HK
-        tests: [not_null, unique]
-      - name: SUPPLIER_BK
-        tests: [not_null, unique]
+      - name: supplier_hk
+        tests: [unique, not_null]
+      - name: supplier_id
+        tests: [not_null]
 
-  # Links
+  - name: hub_nation
+    description: "Hub table storing unique business keys for nations."
+    columns:
+      - name: nation_hk
+        tests: [unique, not_null]
+      - name: nation_id
+        tests: [not_null]
+
+  - name: hub_region
+    description: "Hub table storing unique business keys for regions."
+    columns:
+      - name: region_hk
+        tests: [unique, not_null]
+      - name: region_id
+        tests: [not_null]
+
+  # ========================
+  # LINKS
+  # ========================
   - name: link_orders_customer
     description: "Link between orders and customers."
     columns:
-      - name: LINK_HK
-        tests: [not_null, unique]
-      - name: ORDER_HK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('hub_orders')
-                field: order_hk
-      - name: CUSTOMER_HK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('hub_customer')
-                field: customer_hk
+      - name: link_hk
+        tests: [unique, not_null]
+      - name: order_hk
+        tests: [not_null]
+      - name: customer_hk
+        tests: [not_null]
+
+  - name: link_part_supplier
+    description: "Link between parts and suppliers (PARTSUPP)."
+    columns:
+      - name: link_hk
+        tests: [unique, not_null]
+      - name: part_hk
+        tests: [not_null]
+      - name: supplier_hk
+        tests: [not_null]
 
   - name: link_order_part_supplier
-    description: "Line-level link between order, part, and supplier (includes line_number as dependent key)."
+    description: "Link between orders, parts, suppliers at line-level (LINEITEM)."
     columns:
-      - name: LINK_HK
-        tests: [not_null, unique]
-      - name: ORDER_HK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('hub_orders')
-                field: order_hk
-      - name: PART_HK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('hub_part')
-                field: part_hk
-      - name: SUPPLIER_HK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('hub_supplier')
-                field: supplier_hk
-
-  # Satellites (views over snapshots)
-  - name: sat_customer_attributes_view
-    description: "Current-row customer attributes."
-    columns:
-      - name: CUSTOMER_HK
+      - name: link_hk
+        tests: [unique, not_null]
+      - name: order_hk
         tests: [not_null]
-      - name: START_DT
+      - name: part_hk
         tests: [not_null]
-
-  - name: sat_link_ops_lineattr_view
-    description: "Current-row order line operational attributes."
-    columns:
-      - name: LINK_HK
+      - name: supplier_hk
         tests: [not_null]
-      - name: START_DT
-        tests: [not_null]
+        

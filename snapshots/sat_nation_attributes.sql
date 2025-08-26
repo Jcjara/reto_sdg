@@ -1,18 +1,18 @@
 {% snapshot sat_nation_attributes %}
 {{
-    config(
-        unique_key='nation_hk',
-        strategy='check',
-        check_cols=['nation_name', 'region_id'],
-        invalidate_hard_deletes=True
-    )
+  config(
+    unique_key = 'nation_hk',
+    strategy   = 'check',
+    check_cols = ['nation_name','region_id','comment'],
+    invalidate_hard_deletes = True
+  )
 }}
 
-SELECT
-    {{ hk256(['n.nation_id']) }} AS nation_hk,
-    n.nation_name,
-    n.region_id,
-    {{ var('source_system') }}   AS record_src
-FROM {{ ref('stg_tpch__nation') }} n
+{{ dv_platform.dv_sat_select(
+    src_ref_name = 'stg_tpch__nation',
+    hk_cols      = ['nation_id'],
+    attrs        = ['nation_name','region_id','comment'],
+    hk_name      = 'nation_hk'
+) }}
 
 {% endsnapshot %}

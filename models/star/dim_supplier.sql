@@ -1,11 +1,11 @@
-{{ config(schema='star', materialized='table') }}
-
 SELECT
-    {{ hk256(['s.supplier_id']) }} AS supplier_sk,  -- HK-as-SK
-    s.supplier_id                  AS supplier_bk,
-    s.name                         AS supplier_name,
-    s.address,
-    s.nation_id,
-    s.phone,
-    s.account_balance
-FROM {{ ref('stg_tpch__supplier') }} s
+    s.supplier_hk   AS supplier_sk,
+    s.supplier_id,
+    s.supplier_name,
+    n.nation_name,
+    r.region_name
+FROM {{ ref('bv_supplier') }} s
+LEFT JOIN {{ ref('bv_nation') }} n
+  ON s.nation_id = n.nation_id
+LEFT JOIN {{ ref('bv_region') }} r
+  ON n.region_id = r.region_id

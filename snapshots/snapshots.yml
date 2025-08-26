@@ -2,96 +2,65 @@ version: 2
 
 snapshots:
   - name: sat_customer_attributes
-    description: "Snapshot of customer descriptive attributes (SCD2)."
-    columns:
-      - name: CUSTOMER_HK
-        description: "Hash key for customer."
-        tests: [not_null]
+    description: "Satellite capturing descriptive attributes of customers."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: customer_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [customer_hk, dbt_valid_from] }
 
-      - name: NAME
-        description: "Customer name."
+  - name: sat_order_attributes
+    description: "Satellite capturing descriptive attributes of orders."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: order_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [order_hk, dbt_valid_from] }
 
-      - name: ADDRESS
-        description: "Customer address."
+  - name: sat_part_attributes
+    description: "Satellite capturing descriptive attributes of parts."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: part_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [part_hk, dbt_valid_from] }
 
-      - name: NATION_KEY
-        description: "Reference to nation."
+  - name: sat_supplier_attributes
+    description: "Satellite capturing descriptive attributes of suppliers."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: supplier_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [supplier_hk, dbt_valid_from] }
 
-      - name: PHONE
-        description: "Customer phone."
+  - name: sat_partsupp_attributes
+    description: "Satellite capturing descriptive attributes of the PART–SUPPLIER relationship."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: link_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [link_hk, dbt_valid_from] }
 
-      - name: ACCTBAL
-        description: "Customer account balance."
+  - name: sat_nation_attributes
+    description: "Satellite capturing descriptive attributes of nations."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: nation_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [nation_hk, dbt_valid_from] }
 
-      - name: MKTSEGMENT
-        description: "Market segment."
+  - name: sat_region_attributes
+    description: "Satellite capturing descriptive attributes of regions."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: region_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [region_hk, dbt_valid_from] }
 
-      - name: COMMENT
-        description: "Customer comment."
-
-      # Snapshot meta-columns
-      - name: DBT_SCD_ID
-        description: "Unique identifier for SCD row."
-        tests: [not_null, unique]
-
-      - name: DBT_VALID_FROM
-        description: "Start timestamp for validity."
-        tests: [not_null]
-
-      - name: DBT_VALID_TO
-        description: "End timestamp for validity."
-
-  - name: sat_link_ops_lineattr
-    description: "Snapshot of line-level operational attributes (SCD2)."
-    columns:
-      - name: LINK_HK
-        description: "Hash key for order-part-supplier link."
-        tests: [not_null]
-
-      - name: QUANTITY
-        description: "Line item quantity."
-
-      - name: EXTENDED_PRICE
-        description: "Extended price before discount/tax."
-
-      - name: DISCOUNT
-        description: "Discount applied to line."
-
-      - name: TAX
-        description: "Tax applied to line."
-
-      - name: RETURNFLAG
-        description: "Return flag."
-
-      - name: LINESTATUS
-        description: "Line status."
-
-      - name: SHIP_DATE
-        description: "Ship date."
-
-      - name: COMMIT_DATE
-        description: "Commit date."
-
-      - name: RECEIPT_DATE
-        description: "Receipt date."
-
-      - name: SHIP_INSTRUCT
-        description: "Shipping instructions."
-
-      - name: SHIP_MODE
-        description: "Shipping mode."
-
-      - name: COMMENT
-        description: "Line comment."
-
-      # Snapshot meta-columns
-      - name: DBT_SCD_ID
-        description: "Unique identifier for SCD row."
-        tests: [not_null, unique]
-
-      - name: DBT_VALID_FROM
-        description: "Start timestamp for validity."
-        tests: [not_null]
-
-      - name: DBT_VALID_TO
-        description: "End timestamp for validity."
+  - name: sat_link_order_part_supplier
+    description: "Satellite capturing line-level attributes for the Order–Part–Supplier link (LINEITEM)."
+    tests:
+      - dbt_expectations.expect_column_values_to_not_be_null:
+          arguments: { column_name: link_hk }
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments: { column_list: [link_hk, dbt_valid_from] }

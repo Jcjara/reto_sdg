@@ -1,32 +1,129 @@
 version: 2
 
 models:
-  - name: bv_customer_geography
-    description: "Customer to geography (nation/region) enrichment at customer grain."
+  - name: bv_customer
+    description: "Business vault view consolidating customer attributes and history."
     columns:
-      - name: CUSTOMER_HK
+      - name: customer_hk
+        description: "Surrogate hash key for the customer."
         tests: [not_null, unique]
-      - name: CUSTOMER_ID
-        tests: [not_null]
-      - name: NATION_ID
-      - name: NATION_NAME
-      - name: REGION_ID
-      - name: REGION_NAME
+      - name: customer_id
+        description: "Business key of the customer."
+      - name: customer_name
+        description: "Customer name."
+      - name: market_segment
+        description: "Market segment classification."
+      - name: account_balance
+        description: "Customer account balance."
+      - name: nation_id
+        description: "Foreign key to nation."
 
-  - name: bv_lineitem_enriched
-    description: "Order-line enrichment combining lineitem, orders (dates), customer sat (segment), part (brand/type), and derived measures."
+  - name: bv_order
+    description: "Business vault view consolidating order attributes and links."
     columns:
-      - name: CUSTOMER_HK
-        tests: [not_null]
-      - name: PART_HK
-        tests: [not_null]
-      - name: SUPPLIER_HK
-        tests: [not_null]
-      - name: ORDER_HK
-        tests: [not_null]
-      - name: LINK_HK
+      - name: order_hk
+        description: "Surrogate hash key for the order."
         tests: [not_null, unique]
-      - name: ORDER_DATE
-        tests: [not_null]
-      - name: NET_SALES
-        tests: [not_null]
+      - name: order_id
+        description: "Business key of the order."
+      - name: customer_hk
+        description: "Link to bv_customer."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('bv_customer')
+                field: customer_hk
+      - name: order_date
+        description: "Date when the order was placed."
+      - name: ship_priority
+        description: "Shipping priority."
+      - name: status
+        description: "Order status."
+
+  - name: bv_lineitem
+    description: "Business vault view for line items with product, supplier, and order references."
+    columns:
+      - name: link_hk
+        description: "Surrogate hash key for the lineitem link."
+        tests: [not_null, unique]
+      - name: order_hk
+        description: "Link to bv_order."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('bv_order')
+                field: order_hk
+      - name: part_hk
+        description: "Link to bv_part."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('bv_part')
+                field: part_hk
+      - name: supplier_hk
+        description: "Link to bv_supplier."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('bv_supplier')
+                field: supplier_hk
+      - name: quantity
+        description: "Quantity ordered."
+      - name: extended_price
+        description: "Extended price of the lineitem."
+      - name: discount
+        description: "Discount applied."
+      - name: tax
+        description: "Tax applied."
+
+  - name: bv_part
+    description: "Business vault view consolidating part attributes."
+    columns:
+      - name: part_hk
+        description: "Surrogate hash key for the part."
+        tests: [not_null, unique]
+      - name: part_id
+        description: "Business key of the part."
+      - name: part_name
+        description: "Name of the part."
+      - name: brand
+        description: "Brand of the part."
+      - name: type
+        description: "Type/category of the part."
+
+  - name: bv_supplier
+    description: "Business vault view consolidating supplier attributes."
+    columns:
+      - name: supplier_hk
+        description: "Surrogate hash key for the supplier."
+        tests: [not_null, unique]
+      - name: supplier_id
+        description: "Business key of the supplier."
+      - name: supplier_name
+        description: "Supplier name."
+      - name: nation_id
+        description: "Foreign key to nation."
+
+  - name: bv_nation
+    description: "Business vault view consolidating nation attributes."
+    columns:
+      - name: nation_hk
+        description: "Surrogate hash key for the nation."
+        tests: [not_null, unique]
+      - name: nation_id
+        description: "Business key of the nation."
+      - name: nation_name
+        description: "Name of the nation."
+      - name: region_id
+        description: "Foreign key to region."
+
+  - name: bv_region
+    description: "Business vault view consolidating region attributes."
+    columns:
+      - name: region_hk
+        description: "Surrogate hash key for the region."
+        tests: [not_null, unique]
+      - name: region_id
+        description: "Business key of the region."
+      - name: region_name
+        description: "Name of the region."

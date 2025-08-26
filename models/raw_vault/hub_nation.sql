@@ -1,28 +1,7 @@
-{{ config(
-    unique_key='nation_hk',
-    on_schema_change='sync_all_columns'
+{{ config(unique_key='nation_hk') }}
+
+{{ dv_platform.dv_hub(
+    src_ref_name='stg_tpch__nation',
+    bk_cols=['nation_id'],
+    hk_name='nation_hk'
 ) }}
-
-WITH base AS (
-    SELECT
-        n.nation_id AS nation_bk
-    FROM {{ ref('stg_tpch__nation') }} n
-),
-hkeys AS (
-    SELECT
-        nation_bk,
-        {{ hk256(['nation_bk']) }} AS nation_hk,
-        CURRENT_TIMESTAMP()        AS load_dt,
-        {{ record_src_const() }}   AS record_src
-    FROM base
-)
-
-SELECT
-    nation_bk,
-    nation_hk,
-    load_dt,
-    record_src
-FROM hkeys
-{% if is_incremental() %}
-WHERE nation_hk NOT IN (SELECT nation_hk FROM {{ this }})
-{% endif %}

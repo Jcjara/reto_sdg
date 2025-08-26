@@ -1,71 +1,129 @@
 version: 2
 
 models:
+  # ======================
+  # DIMENSIONS
+  # ======================
   - name: dim_customer
-    description: "Customer dimension from current customer satellite + geography mapping."
+    description: "Customer dimension (current attributes from BV)."
     columns:
-      - name: CUSTOMER_SK
-        tests: [not_null, unique]
-      - name: GEOGRAPHY_SK
-        tests:
-          - relationships:
-              arguments:
-                to: ref('dim_geography')
-                field: geography_sk
+      - name: customer_sk
+        description: "Surrogate key (HK) for customer."
+        tests: [unique, not_null]
+      - name: customer_id
+        description: "Source business key."
+      - name: market_segment
+        description: "Customer segment."
+      - name: account_balance
+        description: "Current account balance."
+      - name: nation_name
+        description: "Resolved nation name."
+      - name: region_name
+        description: "Resolved region name."
 
-  - name: dim_product
-    description: "Product dimension from TPCH PART."
+  - name: dim_part
+    description: "Product/Part dimension (current attributes from BV)."
     columns:
-      - name: PRODUCT_SK
-        tests: [not_null, unique]
+      - name: part_sk
+        description: "Surrogate key (HK) for part."
+        tests: [unique, not_null]
+      - name: part_id
+        description: "Source business key."
+      - name: part_name
+        description: "Name of the product."
+      - name: brand
+        description: "Brand."
+      - name: retail_price
+        description: "List price."
 
   - name: dim_supplier
-    description: "Supplier dimension from TPCH SUPPLIER."
+    description: "Supplier dimension (current attributes from BV)."
     columns:
-      - name: SUPPLIER_SK
-        tests: [not_null, unique]
+      - name: supplier_sk
+        description: "Surrogate key (HK) for supplier."
+        tests: [unique, not_null]
+      - name: supplier_id
+        description: "Source business key."
+      - name: supplier_name
+        description: "Supplier name."
 
-  - name: dim_geography
-    description: "Geography dimension at nation grain with region."
+  - name: dim_nation
+    description: "Nation dimension derived from BV."
     columns:
-      - name: GEOGRAPHY_SK
-        tests: [not_null, unique]
-      - name: NATION_BK
-        tests: [not_null]
+      - name: nation_sk
+        description: "Surrogate key (HK) for nation."
+        tests: [unique, not_null]
+      - name: nation_id
+        description: "Business key."
+      - name: nation_name
+        description: "Nation name."
+      - name: region_name
+        description: "Associated region."
 
+  - name: dim_region
+    description: "Region dimension derived from BV."
+    columns:
+      - name: region_sk
+        description: "Surrogate key (HK) for region."
+        tests: [unique, not_null]
+      - name: region_id
+        description: "Business key."
+      - name: region_name
+        description: "Region name."
+
+  # ======================
+  # FACT
+  # ======================
   - name: fact_sales
-    description: "Order-line grain fact built from Business Vault enrichment."
+    description: "Sales fact at order-part-supplier line grain."
     columns:
-      - name: CUSTOMER_SK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_customer')
-                field: customer_sk
-      - name: PRODUCT_SK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_product')
-                field: product_sk
-      - name: SUPPLIER_SK
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_supplier')
-                field: supplier_sk
-      - name: GEOGRAPHY_SK
+      - name: sales_sk
+        description: "Line-level surrogate key (link HK)."
+        tests: [unique, not_null]
+
+      # Foreign keys to dimensions
+      - name: customer_hk
+        description: "FK to dim_customer.customer_sk."
         tests:
           - relationships:
-              arguments:
-                to: ref('dim_geography')
-                field: geography_sk
-      - name: LINE_SK
-        tests: [not_null, unique]
-      - name: ORDER_DATE
+              to: ref('dim_customer')
+              field: customer_sk
+
+      - name: part_hk
+        description: "FK to dim_part.part_sk."
+        tests:
+          - relationships:
+              to: ref('dim_part')
+              field: part_sk
+
+      - name: supplier_hk
+        description: "FK to dim_supplier.supplier_sk."
+        tests:
+          - relationships:
+              to: ref('dim_supplier')
+              field: supplier_sk
+
+      # Dates carried on the fact
+      - name: order_date
+        description: "Order date."
+
+      - name: ship_date
+        description: "Ship date."
+
+      - name: receipt_date
+        description: "Receipt date."
+
+      # Basic measure presence
+      - name: quantity
         tests: [not_null]
-      - name: NET_SALES
+      - name: extended_price
+        tests: [not_null]
+
+  # ======================
+  # REPORTING VIEW
+  # ======================
+  - name: vw_sales_flat
+    description: "Convenience view joining fact_sales to key dims for BI."
+    columns:
+      - name: sales_sk
         tests: [not_null]

@@ -4,7 +4,7 @@ SELECT
     {{ hk256(['p.part_id']) }} AS product_sk,  -- HK-as-SK
     p.part_id                  AS product_bk,
     p.part_name,
-    p.manufacturer,
+    p.mfgr,
     p.brand,
     p.part_type,
     p.size,

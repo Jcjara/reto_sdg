@@ -1,0 +1,17 @@
+version: 2
+
+exposures:
+  - name: tableau_sales_dashboard
+    type: dashboard
+    maturity: medium
+    owner:
+      name: SDG Demo
+      email: jcjaraperez@gmail.com
+    url: "https://tableau.cloud/your/workbook/url"  # or leave blank for demo
+    description: "Sales dashboard consuming the star schema."
+    depends_on:
+      - ref('fact_sales')
+      - ref('dim_customer')
+      - ref('dim_part')
+      - ref('dim_supplier')
+    tags: ['bi', 'tableau', 'sales']
