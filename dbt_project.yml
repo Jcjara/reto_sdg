@@ -22,12 +22,8 @@ snapshots:
       columns: true
 
 models:
+  models:
   reto_project:
-    # Good global defaults
-    +on_schema_change: sync_all_columns
-    +persist_docs:
-      relation: true
-      columns: true
 
     # STAGING → RETO_DB.STAGING
     staging:
@@ -44,13 +40,13 @@ models:
       +schema: business_vault
       +materialized: view
 
-    # STAR/MARTS → RETO_DB.STAR
+    # STAR → RETO_DB.STAR
     star:
       +schema: star
       +materialized: table
-      reporting:
-        +materialized: view   # everything in models/star/reporting/ becomes a view
 
+    # REPORTING → RETO_DB.REPORTING
     reporting:
       +schema: reporting
       +materialized: view
+
