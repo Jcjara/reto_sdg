@@ -1,13 +1,14 @@
-{{ config(schema='star', materialized='table') }}
-
 SELECT
-    {{ hk256(['p.part_id']) }} AS product_sk,  -- HK-as-SK
-    p.part_id                  AS product_bk,
+    p.part_hk          AS product_sk,
     p.part_name,
-    p.mfgr,
     p.brand,
     p.part_type,
     p.size,
     p.container,
-    p.retail_price
-FROM {{ ref('stg_tpch__part') }} p
+    p.retail_price,
+    ps.supplier_hk,
+    ps.avail_qty,
+    ps.supply_cost
+FROM {{ ref('bv_part') }} p
+LEFT JOIN {{ ref('bv_partsupp') }} ps
+    ON p.part_hk = ps.part_hk
