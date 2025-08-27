@@ -92,28 +92,32 @@ models:
         description: "Type/category of the part."
 
   - name: bv_partsupp
-    description: "Current Part–Supplier relationship with availability and supply cost (from sat_partsupp_attributes)."
+    description: "Current Part–Supplier relationship (availability and supply cost) sourced from sat_partsupp_attributes."
     columns:
       - name: part_hk
+        description: "Part hash key (FK to bv_part.part_hk)."
         tests:
           - not_null
           - relationships:
-              to: ref('bv_part')
-              field: part_hk
+              arguments:
+                to: ref('bv_part')
+                field: part_hk
       - name: supplier_hk
+        description: "Supplier hash key (FK to bv_supplier.supplier_hk)."
         tests:
           - not_null
           - relationships:
-              to: ref('bv_supplier')
-              field: supplier_hk
-      - name: supplycost
+              arguments:
+                to: ref('bv_supplier')
+                field: supplier_hk
+      - name: supply_cost
         description: "Supplier’s cost for this part."
-      - name: availqty
+      - name: avail_qty
         description: "Available quantity for this part from the supplier."
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['part_hk','supplier_hk']
+          combination_of_columns: ['part_hk', 'supplier_hk']
 
   - name: bv_supplier
     description: "Business vault view consolidating supplier attributes."
