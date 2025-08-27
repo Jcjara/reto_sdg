@@ -36,6 +36,39 @@ models:
       - name: retail_price
         description: "List price."
 
+  - name: dim_product
+    description: "Enriched product dimension combining part and partsupp (current attributes)."
+    columns:
+      - name: product_sk
+        description: "Surrogate key (HK) for product (part_hk)."
+        tests: [unique, not_null]
+
+      - name: part_name
+        description: "Name of the product/part."
+      - name: brand
+        description: "Brand."
+      - name: part_type
+        description: "Type of the product."
+      - name: size
+        description: "Size specification."
+      - name: container
+        description: "Container type."
+      - name: retail_price
+        description: "List price."
+
+      - name: supplier_hk
+        description: "FK to dim_supplier.supplier_sk."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_supplier')
+                field: supplier_sk
+
+      - name: avail_qty
+        description: "Available quantity."
+      - name: supply_cost
+        description: "Supply cost."
+
   - name: dim_supplier
     description: "Supplier dimension (current attributes from BV)."
     columns:
@@ -86,22 +119,25 @@ models:
         description: "FK to dim_customer.customer_sk."
         tests:
           - relationships:
-              to: ref('dim_customer')
-              field: customer_sk
+              arguments:
+                to: ref('dim_customer')
+                field: customer_sk
 
       - name: part_hk
         description: "FK to dim_part.part_sk."
         tests:
           - relationships:
-              to: ref('dim_part')
-              field: part_sk
+              arguments:
+                to: ref('dim_part')
+                field: part_sk
 
       - name: supplier_hk
         description: "FK to dim_supplier.supplier_sk."
         tests:
           - relationships:
-              to: ref('dim_supplier')
-              field: supplier_sk
+              arguments:
+                to: ref('dim_supplier')
+                field: supplier_sk
 
       # Dates carried on the fact
       - name: order_date
