@@ -1,17 +1,11 @@
 packages:
-  - name: dbt_expectations
-    package: metaplane/dbt_expectations
-    version: 0.10.9
   - name: dbt_utils
     package: dbt-labs/dbt_utils
     version: 1.3.0
-  - git: https://github.com/Jcjara/dv_platform.git
-    name: dv_platform
-    revision: 1e12a0b38d2db80e63de3c8b963c36aad4cc982c
-  - name: codegen
-    package: dbt-labs/codegen
-    version: 0.12.1
+  - name: dbt_expectations
+    package: calogica/dbt_expectations
+    version: 0.10.4
   - name: dbt_date
-    package: godatadriven/dbt_date
-    version: 0.16.1
-sha1_hash: db1eaaa7e171e72b8d03bcd47fa5195b0fbcffab
+    package: calogica/dbt_date
+    version: 0.10.1
+sha1_hash: ef56bf8c07b36b38ee7b3e1c6f8be5f1bde7ee7e
