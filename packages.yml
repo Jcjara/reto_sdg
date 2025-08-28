@@ -7,3 +7,6 @@ packages:
 
   - git: "https://github.com/Jcjara/dv_platform.git"
     revision: main
+
+  - package: dbt-labs/codegen
+    version: 0.12.1
